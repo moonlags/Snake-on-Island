@@ -73,65 +73,73 @@ bool Game::isRunning() const {
 }
 
 void Game::Update() {
-    if(snake.empty()){
-        snake.emplace_back(ground[0].x,ground[0].y,20,20,true);
-    }else if(snake.size()<snakeLenght){
-        SDL_Rect* last_tile_rect=snake[snake.size()-1].GetRect();
-        snake.emplace_back(last_tile_rect->x,last_tile_rect->y,20,20,false);
+    if (snake.empty()) {
+        snake.emplace_back(ground[0].x, ground[0].y, 20, 20, true);
+    } else if (snake.size() < snakeLenght) {
+        SDL_Rect *last_tile_rect = snake[snake.size() - 1].GetRect();
+        snake.emplace_back(last_tile_rect->x, last_tile_rect->y, 20, 20, false);
     }
 
-    auto event=Window::GetEvent();
-    switch(event.type){
+    auto event = Window::GetEvent();
+    switch (event.type) {
         case SDL_QUIT:
-            running=false;
+            running = false;
             break;
         case SDL_KEYDOWN:
-            if(event.key.keysym.sym==SDLK_UP){
-                vx=0;
-                vy=-20;
-            }else if(event.key.keysym.sym==SDLK_DOWN){
-                vx=0;
-                vy=20;
-            }else if(event.key.keysym.sym==SDLK_LEFT){
-                vy=0;
-                vx=-20;
-            }else if(event.key.keysym.sym==SDLK_RIGHT){
-                vy=0;
-                vx=20;
-            }else if(event.key.keysym.sym==SDLK_ESCAPE){
-                running=false;
+            if (event.key.keysym.sym == SDLK_UP&&vy!=20) {
+                vx = 0;
+                vy = -20;
+            } else if (event.key.keysym.sym == SDLK_DOWN&&vy!=-20) {
+                vx = 0;
+                vy = 20;
+            } else if (event.key.keysym.sym == SDLK_LEFT&&vx!=20) {
+                vy = 0;
+                vx = -20;
+            } else if (event.key.keysym.sym == SDLK_RIGHT&&vx!=-20) {
+                vy = 0;
+                vx = 20;
+            } else if (event.key.keysym.sym == SDLK_ESCAPE) {
+                running = false;
             }
             break;
     }
-    if (apples.size()<applesMax){
-        SDL_Rect rect={std::rand()%570,std::rand()%570,37,37};
-        for(auto g:ground){
-            if(SDL_HasIntersection(&rect,&g)){
-                apples.emplace_back(rect.x,rect.y,37,37);
+    if (apples.size() < applesMax) {
+        SDL_Rect rect = {std::rand() % 570, std::rand() % 570, 37, 37};
+        for (auto g: ground) {
+            if (SDL_HasIntersection(&rect, &g)) {
+                apples.emplace_back(rect.x, rect.y, 37, 37);
                 break;
             }
         }
     }
 
-    for(int i=snake.size()-1;i>=0;--i){
-        if(!snake[i].Head()&&!SDL_HasIntersection(snake[i].GetRect(),snake[i-1].GetRect())){
-            snake[i].SetRect(snake[i-1].GetRect()->x,snake[i-1].GetRect()->y,20,20);
-        }else if(snake[i].Head()){
-            snake[i].SetRect(snake[i].GetRect()->x+vx,snake[i].GetRect()->y+vy,20,20);
+    for (int i = snake.size() - 1; i >= 0; --i) {
+        if (!snake[i].Head() && !SDL_HasIntersection(snake[i].GetRect(), snake[i - 1].GetRect())) {
+            snake[i].SetRect(snake[i - 1].GetRect()->x, snake[i - 1].GetRect()->y, 20, 20);
+        } else if (snake[i].Head()) {
+            snake[i].SetRect(snake[i].GetRect()->x + vx, snake[i].GetRect()->y + vy, 20, 20);
         }
     }
 
-    for(int i=0;i<apples.size();++i){
-        if(SDL_HasIntersection(apples[i].GetRect(),snake[0].GetRect())){
-            SDL_Rect* last_tile_rect=snake[snake.size()-1].GetRect();
-            snake.emplace_back(last_tile_rect->x,last_tile_rect->y,20,20,false);
-            apples.erase(std::next(apples.begin(),i));
+    for (int i = 0; i < apples.size(); ++i) {
+        if (SDL_HasIntersection(apples[i].GetRect(), snake[0].GetRect())) {
+            SDL_Rect *last_tile_rect = snake[snake.size() - 1].GetRect();
+            snake.emplace_back(last_tile_rect->x, last_tile_rect->y, 20, 20, false);
+            apples.erase(std::next(apples.begin(), i));
         }
     }
 
-    if(snake[0].GetRect()->x>600||snake[0].GetRect()->x<0||
-    snake[0].GetRect()->y>600||snake[0].GetRect()->y<0){
-        running=false;
+    {
+        SDL_Rect * origrect=snake[0].GetRect();
+        if(origrect->x>600){
+            snake[0].SetRect(1,origrect->y,20,20);
+        }else if(origrect->x<0){
+            snake[0].SetRect(599,origrect->y,20,20);
+        }else if(origrect->y>600){
+            snake[0].SetRect(origrect->x,1,20,20);
+        }else if(origrect->y<0){
+            snake[0].SetRect(origrect->x,599,20,20);
+        }
     }
 
     bool res=false;
@@ -144,6 +152,7 @@ void Game::Update() {
     if(!res){
         running=false;
     }
+
 }
 
 void Game::Render() {
