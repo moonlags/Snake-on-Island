@@ -1,7 +1,7 @@
 #include "Game.h"
 
 int main(int argc,char** argv){
-    Game game=Game(5,5);
+    Game game=Game(3,3);
     game.GenerateMap(40);
     while(game.isRunning()){
         game.Update();

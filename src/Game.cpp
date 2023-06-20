@@ -98,6 +98,8 @@ void Game::Update() {
             }else if(event.key.keysym.sym==SDLK_RIGHT){
                 vy=0;
                 vx=20;
+            }else if(event.key.keysym.sym==SDLK_ESCAPE){
+                running=false;
             }
             break;
     }
@@ -119,7 +121,13 @@ void Game::Update() {
         }
     }
 
-
+    for(int i=0;i<apples.size();++i){
+        if(SDL_HasIntersection(apples[i].GetRect(),snake[0].GetRect())){
+            SDL_Rect* last_tile_rect=snake[snake.size()-1].GetRect();
+            snake.emplace_back(last_tile_rect->x,last_tile_rect->y,20,20,false);
+            apples.erase(std::next(apples.begin(),i));
+        }
+    }
 }
 
 void Game::Render() {
