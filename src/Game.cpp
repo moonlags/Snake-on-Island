@@ -123,8 +123,7 @@ void Game::Update() {
 
     for (int i = 0; i < apples.size(); ++i) {
         if (SDL_HasIntersection(apples[i].GetRect(), snake[0].GetRect())) {
-            SDL_Rect *last_tile_rect = snake[snake.size() - 1].GetRect();
-            snake.emplace_back(last_tile_rect->x, last_tile_rect->y, 20, 20, false);
+            ++snakeLenght;
             apples.erase(std::next(apples.begin(), i));
         }
     }
@@ -135,7 +134,7 @@ void Game::Update() {
             snake[0].SetRect(1,origrect->y,20,20);
         }else if(origrect->x<0){
             snake[0].SetRect(599,origrect->y,20,20);
-        }else if(origrect->y>600){
+        }else if(origrect->y+20>600){
             snake[0].SetRect(origrect->x,1,20,20);
         }else if(origrect->y<0){
             snake[0].SetRect(origrect->x,599,20,20);
