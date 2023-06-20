@@ -128,6 +128,22 @@ void Game::Update() {
             apples.erase(std::next(apples.begin(),i));
         }
     }
+
+    if(snake[0].GetRect()->x>600||snake[0].GetRect()->x<0||
+    snake[0].GetRect()->y>600||snake[0].GetRect()->y<0){
+        running=false;
+    }
+
+    bool res=false;
+    for(auto  g:ground){
+        if(SDL_HasIntersection(snake[0].GetRect(),&g)){
+            res=true;
+            break;
+        }
+    }
+    if(!res){
+        running=false;
+    }
 }
 
 void Game::Render() {

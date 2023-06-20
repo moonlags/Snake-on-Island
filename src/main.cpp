@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Game.h"
 
 int main(int argc,char** argv){
@@ -9,6 +10,7 @@ int main(int argc,char** argv){
 
         SDL_Delay(100);
     }
+    std::cout <<"Game over!"<<std::endl;
     //SDL_Delay(5000);
     return 0;
 }
