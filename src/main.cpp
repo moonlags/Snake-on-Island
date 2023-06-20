@@ -11,6 +11,6 @@ int main(int argc,char** argv){
         SDL_Delay(100);
     }
     std::cout <<"Game over!"<<std::endl;
-    //SDL_Delay(5000);
+    SDL_Delay(2000);
     return 0;
 }
