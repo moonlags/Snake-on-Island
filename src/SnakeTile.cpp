@@ -16,7 +16,6 @@ SDL_Rect* SnakeTile::GetRect() {
     return &posrect;
 }
 
-
 void SnakeTile::SetRect(int x,int y,int w, int h) {
     posrect={x,y,w,h};
 }

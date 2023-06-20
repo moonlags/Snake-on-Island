@@ -74,10 +74,10 @@ bool Game::isRunning() const {
 
 void Game::Update() {
     if(snake.empty()){
-        snake.emplace_back(ground[0].x,ground[0].y,37,37,true);
+        snake.emplace_back(ground[0].x,ground[0].y,20,20,true);
     }else if(snake.size()<snakeLenght){
         SDL_Rect* last_tile_rect=snake[snake.size()-1].GetRect();
-        snake.emplace_back(last_tile_rect->x,last_tile_rect->y,37,37,false);
+        snake.emplace_back(last_tile_rect->x,last_tile_rect->y,20,20,false);
     }
 
     auto event=Window::GetEvent();
@@ -88,16 +88,16 @@ void Game::Update() {
         case SDL_KEYDOWN:
             if(event.key.keysym.sym==SDLK_UP){
                 vx=0;
-                vy=-37;
+                vy=-20;
             }else if(event.key.keysym.sym==SDLK_DOWN){
                 vx=0;
-                vy=37;
+                vy=20;
             }else if(event.key.keysym.sym==SDLK_LEFT){
                 vy=0;
-                vx=-37;
+                vx=-20;
             }else if(event.key.keysym.sym==SDLK_RIGHT){
                 vy=0;
-                vx=37;
+                vx=20;
             }
             break;
     }
@@ -110,14 +110,16 @@ void Game::Update() {
             }
         }
     }
-    //FROM OTHER SIDE OF VECTOR!!!!!
-    for(int i=0;i<snake.size();++i){
+
+    for(int i=snake.size()-1;i>=0;--i){
         if(!snake[i].Head()&&!SDL_HasIntersection(snake[i].GetRect(),snake[i-1].GetRect())){
-            snake[i].SetRect(snake[i-1].GetRect()->x,snake[i-1].GetRect()->y,37,37);
-        }else{
-            snake[i].SetRect(snake[i].GetRect()->x+vx,snake[i].GetRect()->y+vy,37,37);
+            snake[i].SetRect(snake[i-1].GetRect()->x,snake[i-1].GetRect()->y,20,20);
+        }else if(snake[i].Head()){
+            snake[i].SetRect(snake[i].GetRect()->x+vx,snake[i].GetRect()->y+vy,20,20);
         }
     }
+
+
 }
 
 void Game::Render() {
