@@ -20,8 +20,10 @@ public:
     void Update();
     void Render();
 private:
+    bool inMenu;
     bool running;
     Window window;
+    SDL_Texture* text_texture;
     SDL_Texture* map_texture;
     SDL_Texture* apple_texture;
     SDL_Texture* snake_head_texture;

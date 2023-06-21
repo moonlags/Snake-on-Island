@@ -5,8 +5,10 @@
 #include "Game.h"
 #include <ctime>
 #include <iostream>
+#include <chrono>
+#include <cmath>
 
-Game::Game(int applesMax, int snakeLenght):applesMax(applesMax),running(true),snakeLenght(snakeLenght) {
+Game::Game(int applesMax, int snakeLenght):applesMax(applesMax),inMenu(true),running(true),snakeLenght(snakeLenght) {
     window.Init("Snake",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,600,600);
     window.Clear();
 
@@ -15,11 +17,14 @@ Game::Game(int applesMax, int snakeLenght):applesMax(applesMax),running(true),sn
     apple_texture=window.LoadTexture("res/apple.png");
     snake_head_texture=window.LoadTexture("res/snake_head.png");
     snake_body_texture=window.LoadTexture("res/snake_body.png");
+    text_texture=window.LoadTexture("res/text.png");
 
     std::srand(std::time(nullptr));
     vx=0;
     vy=0;
 }
+
+auto start=std::chrono::system_clock::now();
 
 void Game::GenerateMap(int groundCount) {
     std::vector<char> map(64,'w');
@@ -74,7 +79,7 @@ bool Game::isRunning() const {
 
 void Game::Update() {
     if (snake.empty()) {
-        snake.emplace_back(ground[1].x, ground[1].y, 20, 20, true);
+        snake.emplace_back(ground[0].x, ground[0].y, 20, 20, true);
     } else if (snake.size() < snakeLenght) {
         SDL_Rect *last_tile_rect = snake[snake.size() - 1].GetRect();
         snake.emplace_back(last_tile_rect->x, last_tile_rect->y, 20, 20, false);
@@ -86,23 +91,28 @@ void Game::Update() {
             running = false;
             break;
         case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_UP&&vy!=20) {
+            if (!inMenu&&event.key.keysym.sym == SDLK_UP&&vy!=20) {
                 vx = 0;
                 vy = -20;
-            } else if (event.key.keysym.sym == SDLK_DOWN&&vy!=-20) {
+            } else if (!inMenu&&event.key.keysym.sym == SDLK_DOWN&&vy!=-20) {
                 vx = 0;
                 vy = 20;
-            } else if (event.key.keysym.sym == SDLK_LEFT&&vx!=20) {
+            } else if (!inMenu&&event.key.keysym.sym == SDLK_LEFT&&vx!=20) {
                 vy = 0;
                 vx = -20;
-            } else if (event.key.keysym.sym == SDLK_RIGHT&&vx!=-20) {
+            } else if (!inMenu&&event.key.keysym.sym == SDLK_RIGHT&&vx!=-20) {
                 vy = 0;
                 vx = 20;
             } else if (event.key.keysym.sym == SDLK_ESCAPE) {
                 running = false;
+            }else if(inMenu&&event.key.keysym.sym==SDLK_RETURN){
+                inMenu=false;
             }
             break;
     }
+
+    if(inMenu)return;
+
     if (apples.size() < applesMax) {
         SDL_Rect rect = {std::rand() % 570, std::rand() % 570, 37, 37};
         for (auto g: ground) {
@@ -130,13 +140,13 @@ void Game::Update() {
 
     {
         SDL_Rect * origrect=snake[0].GetRect();
-        if(origrect->x+1>600){
+        if(origrect->x>600){
             snake[0].SetRect(1,origrect->y,20,20);
-        }else if(origrect->x<-10){
+        }else if(origrect->x+19<0){
             snake[0].SetRect(599,origrect->y,20,20);
         }else if(origrect->y+1>600){
             snake[0].SetRect(origrect->x,1,20,20);
-        }else if(origrect->y-1<0){
+        }else if(origrect->y+19<0){
             snake[0].SetRect(origrect->x,599,20,20);
         }
     }
@@ -164,6 +174,15 @@ void Game::Update() {
 void Game::Render() {
     window.Clear();
     window.DrawTexture(map_texture,nullptr,nullptr);
+
+    if(inMenu) {
+        auto end = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed=end-start;
+        SDL_Rect rect={40,static_cast<int>(20+std::sin(elapsed.count()*5)*5),534,480};
+        window.DrawTexture(text_texture,nullptr,&rect);
+        window.Present();
+        return;
+    }
 
     for(Apple apple:apples){
         window.DrawTexture(apple_texture, nullptr,apple.GetRect());
