@@ -24,7 +24,7 @@ private:
     bool running;
     Window window;
     SDL_Texture* text_texture;
-    SDL_Texture* map_texture;
+    SDL_Texture* map_texture{};
     SDL_Texture* apple_texture;
     SDL_Texture* snake_head_texture;
     SDL_Texture* snake_body_texture;

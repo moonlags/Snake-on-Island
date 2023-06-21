@@ -188,8 +188,6 @@ void Game::Render() {
         window.DrawTexture(apple_texture, nullptr,apple.GetRect());
     }
 
-    //std::cout << snake[1].GetRect()->x<<" "<<snake[1].GetRect()->y<<std::endl;
-
     for (auto tile:snake){
         if(tile.Head()){
             window.DrawTexture(snake_head_texture,nullptr,tile.GetRect());

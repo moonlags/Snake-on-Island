@@ -14,7 +14,7 @@ public:
     void SetRect(int x,int y,int w,int h);
     bool Head() const;
 private:
-    SDL_Rect posrect;
+    SDL_Rect posrect{};
     bool isHead;
 };
 

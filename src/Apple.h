@@ -13,7 +13,7 @@ public:
     virtual ~Apple();
     SDL_Rect* GetRect();
 private:
-    SDL_Rect posrect;
+    SDL_Rect posrect{};
 };
 
 
