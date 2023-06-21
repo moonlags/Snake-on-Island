@@ -74,7 +74,7 @@ bool Game::isRunning() const {
 
 void Game::Update() {
     if (snake.empty()) {
-        snake.emplace_back(ground[0].x, ground[0].y, 20, 20, true);
+        snake.emplace_back(ground[1].x, ground[1].y, 20, 20, true);
     } else if (snake.size() < snakeLenght) {
         SDL_Rect *last_tile_rect = snake[snake.size() - 1].GetRect();
         snake.emplace_back(last_tile_rect->x, last_tile_rect->y, 20, 20, false);
@@ -130,14 +130,21 @@ void Game::Update() {
 
     {
         SDL_Rect * origrect=snake[0].GetRect();
-        if(origrect->x>600){
+        if(origrect->x+1>600){
             snake[0].SetRect(1,origrect->y,20,20);
-        }else if(origrect->x<0){
+        }else if(origrect->x<-10){
             snake[0].SetRect(599,origrect->y,20,20);
-        }else if(origrect->y+20>600){
+        }else if(origrect->y+1>600){
             snake[0].SetRect(origrect->x,1,20,20);
-        }else if(origrect->y<0){
+        }else if(origrect->y-1<0){
             snake[0].SetRect(origrect->x,599,20,20);
+        }
+    }
+
+    for(auto s:snake){
+        if(!s.Head()&& SDL_HasIntersection(snake[0].GetRect(),s.GetRect())&&(vx!=0||vy!=0)){
+            running=false;
+            break;
         }
     }
 
