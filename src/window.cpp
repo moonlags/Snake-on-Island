@@ -34,8 +34,8 @@ SDL_Event Window::GetEvent(){
     return event;
 }
 
-void Window::PlaySound(Mix_Chunk* sound) {
-    Mix_PlayChannel(-1,sound,0);
+void Window::PlaySound(Mix_Chunk* sound,int loops) {
+    Mix_PlayChannel(-1,sound,loops);
 }
 
 void Window::Init(const char* title,int x,int y,int w,int h) {

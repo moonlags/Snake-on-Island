@@ -14,7 +14,7 @@ public:
 	static SDL_Event GetEvent();
     void Present();
     SDL_Texture* CreateScreenTexture();
-    static void PlaySound(Mix_Chunk* sound);
+    static void PlaySound(Mix_Chunk* sound,int loops);
 private:
 	SDL_Window* window=nullptr;
 	SDL_Renderer* renderer=nullptr;

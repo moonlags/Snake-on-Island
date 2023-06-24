@@ -25,7 +25,7 @@ Game::Game(int applesMax, int snakeLenght):applesMax(applesMax),inMenu(true),run
     std::srand(std::time(nullptr));
     vx=0;
     vy=0;
-    Window::PlaySound(music_sfx);
+    Window::PlaySound(music_sfx,10);
 }
 
 auto start=std::chrono::system_clock::now();
@@ -139,7 +139,7 @@ void Game::Update() {
         if (SDL_HasIntersection(apples[i].GetRect(), snake[0].GetRect())) {
             ++snakeLenght;
             apples.erase(std::next(apples.begin(), i));
-            Window::PlaySound(eat_sfx);
+            Window::PlaySound(eat_sfx,0);
         }
     }
 
