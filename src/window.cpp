@@ -33,9 +33,17 @@ SDL_Event Window::GetEvent(){
     SDL_PollEvent(&event);
     return event;
 }
+
+void Window::PlaySound(Mix_Chunk* sound) {
+    Mix_PlayChannel(-1,sound,0);
+}
+
 void Window::Init(const char* title,int x,int y,int w,int h) {
     SDL_Init(SDL_INIT_EVERYTHING);
     IMG_Init(IMG_INIT_PNG);
+    Mix_Init(MIX_INIT_MP3);
+    Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,2048);
+    Mix_Volume(-1,MIX_MAX_VOLUME);
 
     window= SDL_CreateWindow(title,x,y,w,h,SDL_WINDOW_SHOWN);
     renderer= SDL_CreateRenderer(window,-1,0);

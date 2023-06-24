@@ -30,6 +30,8 @@ private:
     SDL_Texture* snake_body_texture;
     SDL_Texture* water_texture;
     SDL_Texture* ground_texture;
+    Mix_Chunk* music_sfx;
+    Mix_Chunk* eat_sfx;
     int applesMax;
     std::vector<Apple> apples;
     std::vector<SnakeTile> snake;

@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 
 class Window{
 public:
@@ -13,6 +14,7 @@ public:
 	static SDL_Event GetEvent();
     void Present();
     SDL_Texture* CreateScreenTexture();
+    static void PlaySound(Mix_Chunk* sound);
 private:
 	SDL_Window* window=nullptr;
 	SDL_Renderer* renderer=nullptr;

@@ -19,9 +19,13 @@ Game::Game(int applesMax, int snakeLenght):applesMax(applesMax),inMenu(true),run
     snake_body_texture=window.LoadTexture("res/snake_body.png");
     text_texture=window.LoadTexture("res/text.png");
 
+    music_sfx= Mix_LoadWAV("res/music.wav");
+    eat_sfx= Mix_LoadWAV("res/eat.wav");
+
     std::srand(std::time(nullptr));
     vx=0;
     vy=0;
+    Window::PlaySound(music_sfx);
 }
 
 auto start=std::chrono::system_clock::now();
@@ -135,6 +139,7 @@ void Game::Update() {
         if (SDL_HasIntersection(apples[i].GetRect(), snake[0].GetRect())) {
             ++snakeLenght;
             apples.erase(std::next(apples.begin(), i));
+            Window::PlaySound(eat_sfx);
         }
     }
 
