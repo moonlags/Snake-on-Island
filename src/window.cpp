@@ -1,6 +1,7 @@
 #include "window.h"
 
 Window::~Window(){
+    Mix_Quit();
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
@@ -16,12 +17,6 @@ void Window::Present() {
 
 SDL_Texture* Window::LoadTexture(const char *file) {
     return IMG_LoadTexture(renderer,file);
-}
-
-SDL_Texture* Window::CreateScreenTexture() {
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, 600, 600, 32, SDL_PIXELFORMAT_ARGB8888);
-    SDL_RenderReadPixels(renderer, nullptr, SDL_PIXELFORMAT_ARGB8888, surface->pixels, surface->pitch);
-    return SDL_CreateTextureFromSurface(renderer,surface);
 }
 
 void Window::Clear() {

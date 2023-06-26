@@ -3,7 +3,7 @@
 
 int main(int argc,char** argv){
     Game game=Game(3,3);
-    game.GenerateMap(40);
+    game.GenerateMap(160);
     while(game.isRunning()){
         game.Update();
         game.Render();

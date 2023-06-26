@@ -23,6 +23,7 @@ Game::Game(int applesMax, int snakeLenght):applesMax(applesMax),inMenu(true),run
     eat_sfx= Mix_LoadWAV("res/eat.wav");
 
     std::srand(std::time(nullptr));
+
     vx=0;
     vy=0;
     Window::PlaySound(music_sfx,10);
@@ -31,48 +32,45 @@ Game::Game(int applesMax, int snakeLenght):applesMax(applesMax),inMenu(true),run
 auto start=std::chrono::system_clock::now();
 
 void Game::GenerateMap(int groundCount) {
-    std::vector<char> map(64,'w');
-    map[std::rand()%64]='g';
+    std::vector<char> map_temp(256,'w');
+    map_temp[std::rand()%256]='g';
     for(int i=0;i<groundCount-1;){
-        int pos=std::rand()%64;
-        if(((pos+8<=63&&map[pos+8]=='g')||(pos-8>=0&&map[pos-8]=='g')||map[pos+1]=='g'||map[pos-1]=='g')&&map[pos]!='g'){
-            map[pos]='g';
+        int pos=std::rand()%256;
+        if(((pos+8<=255&&map_temp[pos+8]=='g')||(pos-8>=0&&map_temp[pos-8]=='g')||map_temp[pos+1]=='g'||map_temp[pos-1]=='g')&&map_temp[pos]!='g'){
+            map_temp[pos]='g';
             ++i;
         }
     }
 
     int x = 0;
     int y = 0;
-    for (int i = 1; i <= 64; ++i)
+    for (int i = 1; i <= 256; ++i)
     {
-        if(map[i-1]=='g'){
+        if(map_temp[i-1]=='g'){
             SDL_Rect dst={x,y,75,75};
-            window.DrawTexture(ground_texture,nullptr,&dst);
-            ground.push_back(dst);
+            map.push_back(Tile{'g',dst});
         }else{
             SDL_Rect dst={x,y,75,75};
-            window.DrawTexture(water_texture,nullptr,&dst);
+            map.push_back(Tile{'w',dst});
         }
-        if (y != int((i / 8) * 75))
+        if (y != int((i / 16) * 75))
         {
             x = 0;
-            y = (i / 8) * 75;
+            y = (i / 16) * 75;
             continue;
         }
         x += 75;
     }
-    window.Present();
-
-    map_texture=window.CreateScreenTexture();
 }
 
 Game::~Game() {
     SDL_DestroyTexture(ground_texture);
     SDL_DestroyTexture(water_texture);
     SDL_DestroyTexture(apple_texture);
-    SDL_DestroyTexture(map_texture);
     SDL_DestroyTexture(snake_body_texture);
     SDL_DestroyTexture(snake_head_texture);
+    Mix_FreeChunk(music_sfx);
+    Mix_FreeChunk(eat_sfx);
     apples.clear();
     snake.clear();
 }
@@ -83,7 +81,12 @@ bool Game::isRunning() const {
 
 void Game::Update() {
     if (snake.empty()) {
-        snake.emplace_back(ground[0].x, ground[0].y, 20, 20, true);
+        for(auto t:map){
+            if(t.type=='g'){
+                snake.emplace_back(t.pos.x, t.pos.y, 20, 20, true);
+                break;
+            }
+        }
     } else if (snake.size() < snakeLenght) {
         SDL_Rect *last_tile_rect = snake[snake.size() - 1].GetRect();
         snake.emplace_back(last_tile_rect->x, last_tile_rect->y, 20, 20, false);
@@ -118,9 +121,9 @@ void Game::Update() {
     if(inMenu)return;
 
     if (apples.size() < applesMax) {
-        SDL_Rect rect = {std::rand() % 570, std::rand() % 570, 37, 37};
-        for (auto g: ground) {
-            if (SDL_HasIntersection(&rect, &g)) {
+        SDL_Rect rect = {std::rand() % 1163, std::rand() % 1163, 37, 37};
+        for (auto t: map) {
+            if (t.type=='g'&&SDL_HasIntersection(&rect, &t.pos)) {
                 apples.emplace_back(rect.x, rect.y, 37, 37);
                 break;
             }
@@ -143,6 +146,7 @@ void Game::Update() {
         }
     }
 
+    /*
     {
         SDL_Rect * origrect=snake[0].GetRect();
         if(origrect->x>600){
@@ -155,6 +159,7 @@ void Game::Update() {
             snake[0].SetRect(origrect->x,599,20,20);
         }
     }
+*/
 
     for(auto s:snake){
         if(!s.Head()&& SDL_HasIntersection(snake[0].GetRect(),s.GetRect())&&(vx!=0||vy!=0)){
@@ -164,8 +169,8 @@ void Game::Update() {
     }
 
     bool res=false;
-    for(auto  g:ground){
-        if(SDL_HasIntersection(snake[0].GetRect(),&g)){
+    for(auto  t:map){
+        if(t.type=='g'&&SDL_HasIntersection(snake[0].GetRect(),&t.pos)){
             res=true;
             break;
         }
@@ -174,11 +179,25 @@ void Game::Update() {
         running=false;
     }
 
+    camera.SetRect(snake[0].GetRect()->x-300,snake[0].GetRect()->y-300,600,600);
 }
 
 void Game::Render() {
     window.Clear();
-    window.DrawTexture(map_texture,nullptr,nullptr);
+
+    for(auto t:map){
+        if(!SDL_HasIntersection(&t.pos,camera.GetRect()))continue;
+
+        SDL_Rect pos=t.pos;
+        pos.x=t.pos.x-camera.GetRect()->x;
+        pos.y=t.pos.y-camera.GetRect()->y;
+
+        if(t.type=='w'){
+            window.DrawTexture(water_texture,nullptr,&pos);
+        }else if(t.type=='g'){
+            window.DrawTexture(ground_texture,nullptr,&pos);
+        }
+    }
 
     if(inMenu) {
         auto end = std::chrono::system_clock::now();
@@ -190,14 +209,17 @@ void Game::Render() {
     }
 
     for(Apple apple:apples){
-        window.DrawTexture(apple_texture, nullptr,apple.GetRect());
+        SDL_Rect pos={apple.GetRect()->x-camera.GetRect()->x,apple.GetRect()->y-camera.GetRect()->y,37,37};
+
+        window.DrawTexture(apple_texture, nullptr,&pos);
     }
 
     for (auto tile:snake){
+        SDL_Rect pos={tile.GetRect()->x-camera.GetRect()->x,tile.GetRect()->y-camera.GetRect()->y,20,20};
         if(tile.Head()){
-            window.DrawTexture(snake_head_texture,nullptr,tile.GetRect());
+            window.DrawTexture(snake_head_texture,nullptr,&pos);
         }else{
-            window.DrawTexture(snake_body_texture,nullptr,tile.GetRect());
+            window.DrawTexture(snake_body_texture,nullptr,&pos);
         }
     }
 
