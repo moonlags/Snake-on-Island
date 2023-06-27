@@ -8,9 +8,15 @@
 #include <chrono>
 #include <cmath>
 
-Game::Game(int applesMax, int snakeLenght):applesMax(applesMax),inMenu(true),running(true),snakeLenght(snakeLenght) {
+Game::Game(int applesMax, int snakeLenght,int map_size):applesMax(applesMax),map_size(map_size),inMenu(true),running(true),snakeLenght(snakeLenght) {
     window.Init("Snake",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,600,600);
     window.Clear();
+
+    if(map_size<600){
+        std::cout << "Map size is too small!"<<std::endl;
+        running=false;
+        return;
+    }
 
     ground_texture=window.LoadTexture("res/grass.png");
     water_texture=window.LoadTexture("res/water.png");
@@ -32,11 +38,17 @@ Game::Game(int applesMax, int snakeLenght):applesMax(applesMax),inMenu(true),run
 auto start=std::chrono::system_clock::now();
 
 void Game::GenerateMap(int groundCount) {
-    std::vector<char> map_temp(256,'w');
-    map_temp[std::rand()%256]='g';
+    int size=map_size/75*(map_size/75);
+    if(groundCount>size){
+        std::cout << "Too much ground for "<<size<<" map tiles!"<<std::endl;
+        running=false;
+        return;
+    }
+    std::vector<char> map_temp(size,'w');
+    map_temp[std::rand()%size]='g';
     for(int i=0;i<groundCount-1;){
-        int pos=std::rand()%256;
-        if(((pos+8<=255&&map_temp[pos+8]=='g')||(pos-8>=0&&map_temp[pos-8]=='g')||map_temp[pos+1]=='g'||map_temp[pos-1]=='g')&&map_temp[pos]!='g'){
+        int pos=std::rand()%size;
+        if(((pos+8<size&&map_temp[pos+8]=='g')||(pos-8>=0&&map_temp[pos-8]=='g')||map_temp[pos+1]=='g'||map_temp[pos-1]=='g')&&map_temp[pos]!='g'){
             map_temp[pos]='g';
             ++i;
         }
@@ -44,7 +56,7 @@ void Game::GenerateMap(int groundCount) {
 
     int x = 0;
     int y = 0;
-    for (int i = 1; i <= 256; ++i)
+    for (int i = 1; i <= size; ++i)
     {
         if(map_temp[i-1]=='g'){
             SDL_Rect dst={x,y,75,75};
@@ -53,10 +65,10 @@ void Game::GenerateMap(int groundCount) {
             SDL_Rect dst={x,y,75,75};
             map.push_back(Tile{'w',dst});
         }
-        if (y != int((i / 16) * 75))
+        if (y != int((i / (map_size/75) * 75)))
         {
             x = 0;
-            y = (i / 16) * 75;
+            y = (i / (map_size/75)) * 75;
             continue;
         }
         x += 75;
@@ -121,7 +133,7 @@ void Game::Update() {
     if(inMenu)return;
 
     if (apples.size() < applesMax) {
-        SDL_Rect rect = {std::rand() % 1163, std::rand() % 1163, 37, 37};
+        SDL_Rect rect = {std::rand() % (map_size-37), std::rand() % (map_size-37), 37, 37};
         for (auto t: map) {
             if (t.type=='g'&&SDL_HasIntersection(&rect, &t.pos)) {
                 apples.emplace_back(rect.x, rect.y, 37, 37);
@@ -146,20 +158,20 @@ void Game::Update() {
         }
     }
 
-    /*
+
     {
         SDL_Rect * origrect=snake[0].GetRect();
-        if(origrect->x>600){
+        if(origrect->x>map_size){
             snake[0].SetRect(1,origrect->y,20,20);
         }else if(origrect->x+19<0){
-            snake[0].SetRect(599,origrect->y,20,20);
-        }else if(origrect->y+1>600){
+            snake[0].SetRect(map_size-1,origrect->y,20,20);
+        }else if(origrect->y+1>map_size){
             snake[0].SetRect(origrect->x,1,20,20);
         }else if(origrect->y+19<0){
-            snake[0].SetRect(origrect->x,599,20,20);
+            snake[0].SetRect(origrect->x,map_size-1,20,20);
         }
     }
-*/
+
 
     for(auto s:snake){
         if(!s.Head()&& SDL_HasIntersection(snake[0].GetRect(),s.GetRect())&&(vx!=0||vy!=0)){
@@ -179,7 +191,17 @@ void Game::Update() {
         running=false;
     }
 
-    camera.SetRect(snake[0].GetRect()->x-300,snake[0].GetRect()->y-300,600,600);
+    SDL_Rect new_camera_rect={snake[0].GetRect()->x-300,snake[0].GetRect()->y-300,600,600};
+    if(new_camera_rect.x<0){
+        new_camera_rect.x=0;
+    }if(new_camera_rect.x>600){
+        new_camera_rect.x=600;
+    }if(new_camera_rect.y<0){
+        new_camera_rect.y=0;
+    }if(new_camera_rect.y>600){
+        new_camera_rect.y=600;
+    }
+    camera.SetRect(new_camera_rect.x,new_camera_rect.y,600,600);
 }
 
 void Game::Render() {

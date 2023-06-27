@@ -20,13 +20,14 @@ public:
 
 class Game {
 public:
-    Game(int applesMax,int snakeLenght);
+    Game(int applesMax,int snakeLenght,int map_size);
     bool isRunning() const;
     virtual ~Game();
     void GenerateMap(int groundCount);
     void Update();
     void Render();
 private:
+    int map_size;
     bool inMenu;
     bool running;
     Window window;
