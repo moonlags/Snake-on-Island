@@ -194,12 +194,12 @@ void Game::Update() {
     SDL_Rect new_camera_rect={snake[0].GetRect()->x-300,snake[0].GetRect()->y-300,600,600};
     if(new_camera_rect.x<0){
         new_camera_rect.x=0;
-    }if(new_camera_rect.x>600){
-        new_camera_rect.x=600;
+    }if(new_camera_rect.x>map_size-600){
+        new_camera_rect.x=map_size-600;
     }if(new_camera_rect.y<0){
         new_camera_rect.y=0;
-    }if(new_camera_rect.y>600){
-        new_camera_rect.y=600;
+    }if(new_camera_rect.y>map_size-600){
+        new_camera_rect.y=map_size-600;
     }
     camera.SetRect(new_camera_rect.x,new_camera_rect.y,600,600);
 }
