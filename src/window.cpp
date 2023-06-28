@@ -40,7 +40,16 @@ void Window::Init(const char* title,int x,int y,int w,int h) {
     Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,2048);
     Mix_Volume(-1,MIX_MAX_VOLUME);
 
+    TTF_Init();
+
     window= SDL_CreateWindow(title,x,y,w,h,SDL_WINDOW_SHOWN);
     renderer= SDL_CreateRenderer(window,-1,0);
 }
 
+void Window::RenderText(TTF_Font * font,const char * text,SDL_Rect* pos) {
+    SDL_Surface* surface= TTF_RenderText_Solid(font,text,SDL_Color{0,0,0});
+
+    SDL_Texture* texture= SDL_CreateTextureFromSurface(renderer,surface);
+
+    SDL_RenderCopy(renderer,texture,nullptr,pos);
+}

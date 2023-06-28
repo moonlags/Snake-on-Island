@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
 
 class Window{
 public:
@@ -14,6 +15,7 @@ public:
 	static SDL_Event GetEvent();
     void Present();
     static void PlaySound(Mix_Chunk* sound,int loops);
+    void RenderText(TTF_Font* font,const char* text,SDL_Rect* pos);
 private:
 	SDL_Window* window=nullptr;
 	SDL_Renderer* renderer=nullptr;

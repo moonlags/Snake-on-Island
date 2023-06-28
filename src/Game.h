@@ -39,6 +39,7 @@ private:
     SDL_Texture* ground_texture;
     Mix_Chunk* music_sfx;
     Mix_Chunk* eat_sfx;
+    TTF_Font* font;
     int applesMax;
     std::vector<Apple> apples;
     std::vector<SnakeTile> snake;

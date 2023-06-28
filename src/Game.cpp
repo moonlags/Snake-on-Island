@@ -28,6 +28,8 @@ Game::Game(int applesMax, int snakeLenght,int map_size):applesMax(applesMax),map
     music_sfx= Mix_LoadWAV("res/music.wav");
     eat_sfx= Mix_LoadWAV("res/eat.wav");
 
+    font= TTF_OpenFont("res/JetbrainsMono.ttf",24);
+
     std::srand(std::time(nullptr));
 
     vx=0;
@@ -244,6 +246,14 @@ void Game::Render() {
             window.DrawTexture(snake_body_texture,nullptr,&pos);
         }
     }
+
+    SDL_Rect pos ={0,0,200,50};
+
+    char tmp[32];
+    sprintf(tmp,"%d",snakeLenght);
+
+    char text[20]="Snake Length: ";
+    window.RenderText(font, strcat(text,tmp),&pos);
 
     window.Present();
 }
